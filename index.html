@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Parents' Day Registration Portal</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          animation: {
+            fadeIn: 'fadeIn 0.25s ease-out forwards',
+          },
+          keyframes: {
+            fadeIn: {
+              '0%': { opacity: '0', transform: 'scale(0.95)' },
+              '100%': { opacity: '1', transform: 'scale(1)' },
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="min-h-screen bg-slate-50 text-slate-800 font-sans antialiased">
+
+  <!-- Dynamic Custom Toast Notification container -->
+  <div id="notification-container" class="fixed top-5 right-5 z-50 flex flex-col gap-3 max-w-md w-full px-4 sm:px-0 pointer-events-none"></div>
+
+  <!-- Hero Header Banner -->
+  <header class="bg-gradient-to-r from-blue-700 via-indigo-700 to-indigo-800 text-white shadow-md">
+    <div class="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+        <div>
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-600/50 border border-indigo-400/30 text-xs font-semibold tracking-wider uppercase mb-3">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            Booking Portal Active
+          </div>
+          <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight">
+            Parents' Day Registration
+          </h1>
+          <p class="mt-2 text-indigo-100 max-w-xl text-sm sm:text-base">
+            Welcome parents! Register for your preferred 10-minute conference timeslot below on a first-come, first-served basis.
+          </p>
+        </div>
+        
+        <!-- Realtime stats card -->
+        <div class="bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/20 flex flex-wrap gap-6 items-center justify-between min-w-[280px]">
+          <div>
+            <p class="text-xs text-indigo-200 uppercase tracking-wider font-semibold">Total Students</p>
+            <p class="text-2xl font-black">21</p>
+          </div>
+          <div class="h-8 w-[1px] bg-white/20 hidden sm:block"></div>
+          <div>
+            <p class="text-xs text-indigo-200 uppercase tracking-wider font-semibold">Slots Claimed</p>
+            <p id="stat-slots-claimed" class="text-2xl font-black text-emerald-300">0 <span class="text-sm font-normal text-indigo-200">/ 21</span></p>
+          </div>
+          <div class="h-8 w-[1px] bg-white/20 hidden sm:block"></div>
+          <div>
+            <p class="text-xs text-indigo-200 uppercase tracking-wider font-semibold">Special Requests</p>
+            <p id="stat-requests" class="text-2xl font-black text-amber-300">0</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+
+    <!-- Timetable Section -->
+    <section class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8 mb-10">
+      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between border-b border-slate-100 pb-5 mb-6 gap-4">
+        <div>
+          <h2 class="text-xl font-bold text-slate-900">Conference Timetable</h2>
+          <p class="text-xs text-slate-500 mt-1">Parents' Day Schedule: 08:30 AM to 12:30 PM (10-minute slots)</p>
+        </div>
+        
+        <!-- Actions & Legends Group -->
+        <div class="flex flex-wrap items-center gap-4 lg:gap-6">
+          <!-- Quick Legend indicators -->
+          <div class="flex flex-wrap gap-4 text-xs">
+            <div class="flex items-center gap-1.5">
+              <span class="w-3.5 h-3.5 rounded bg-emerald-100 border border-emerald-300"></span>
+              <span class="text-slate-600 font-medium">Available Slot</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="w-3.5 h-3.5 rounded bg-rose-50 border border-rose-200"></span>
+              <span class="text-slate-600 font-medium">Occupied Slot</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="w-3.5 h-3.5 rounded bg-amber-50 border border-amber-200"></span>
+              <span class="text-slate-600 font-medium">Scheduled Break</span>
+            </div>
+          </div>
+
+          <!-- Export Button -->
+          <button
+            id="btn-export-word"
+            class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            Export Table to Word
+          </button>
+        </div>
+      </div>
+
+      <!-- Timetable Grid Container -->
+      <div id="timetable-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <!-- Rendered dynamically by JavaScript -->
+      </div>
+    </section>
+
+    <!-- Bottom Section - Alternative Accommodation Requests -->
+    <section class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-12">
+      <div class="p-6 sm:p-8 border-b border-slate-100 bg-slate-50/50">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h2 class="text-xl font-bold text-slate-900">Cannot Make It on This Day?</h2>
+            <p class="text-xs text-slate-500 mt-1">
+              If you are completely unavailable between 8:30 AM and 12:30 PM, you can submit an alternative arrangement request.
+            </p>
+          </div>
+          <button
+            id="btn-toggle-request-form"
+            class="px-5 py-2.5 bg-indigo-600 text-white hover:bg-indigo-700 rounded-xl text-sm font-bold shadow-sm transition-all flex items-center gap-2"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            <span id="request-btn-text">Request Alternative Meeting</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Form Expansion Section -->
+      <div id="request-form-container" class="hidden p-6 sm:p-8 bg-white border-t border-slate-100 transition-all duration-300">
+        <form id="alt-request-form" class="max-w-3xl mx-auto space-y-6">
+          <div class="bg-blue-50 border border-blue-100 rounded-xl p-4 flex items-start gap-3">
+            <svg class="w-5 h-5 text-blue-600 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <div>
+              <h4 class="text-xs font-bold text-blue-900 uppercase tracking-wider">Alternative Scheduling Request</h4>
+              <p class="text-xs text-blue-800/80 mt-1">
+                Our system will record your preferred slot and hold it. The teacher will review this request and contact you directly to confirm a weekday date.
+              </p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1.5">
+                Class Number <span class="text-rose-500">*</span>
+              </label>
+              <input
+                type="text"
+                id="alt-class-num"
+                required
+                placeholder="e.g. 15"
+                class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white"
+              />
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1.5">
+                Student Name
+              </label>
+              <input
+                type="text"
+                id="alt-student-name"
+                placeholder="e.g. Grace Lee"
+                class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white"
+              />
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1.5">
+                Parent Name
+              </label>
+              <input
+                type="text"
+                id="alt-parent-name"
+                placeholder="e.g. Mrs. Lee"
+                class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white"
+              />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1.5">
+                Earliest Possible Date <span class="text-rose-500">*</span>
+              </label>
+              <input
+                type="date"
+                id="alt-date"
+                required
+                class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white"
+              />
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1.5">
+                Earliest Preferred Time <span class="text-rose-500">*</span>
+              </label>
+              <input
+                type="time"
+                id="alt-time"
+                required
+                class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1.5">
+              Reason / Additional Notes
+            </label>
+            <textarea
+              id="alt-reason"
+              rows="3"
+              placeholder="Brief description of why you cannot attend on the main day or key availability instructions..."
+              class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white"
+            ></textarea>
+          </div>
+
+          <div class="flex justify-end gap-3 pt-3">
+            <button
+              type="button"
+              id="btn-cancel-request"
+              class="px-5 py-2.5 border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-xl text-sm font-semibold transition"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold shadow-sm transition"
+            >
+              Submit Request
+            </button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Booking Form Overlay Modal -->
+  <div id="booking-modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-2xl shadow-xl border border-slate-200 max-w-md w-full overflow-hidden transform scale-100 transition-all duration-300">
+      <!-- Modal Header -->
+      <div class="bg-gradient-to-r from-indigo-700 to-indigo-800 text-white p-5">
+        <div class="flex justify-between items-center">
+          <div>
+            <span id="modal-slot-id" class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 bg-indigo-600 border border-indigo-500 rounded">
+              Timeslot #
+            </span>
+            <h3 class="text-lg font-bold mt-1">Book Appointment</h3>
+          </div>
+          <button
+            id="btn-close-modal"
+            type="button"
+            class="text-white/80 hover:text-white p-1 rounded-full hover:bg-white/10 transition"
+          >
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Modal Body -->
+      <form id="booking-form" class="p-6 space-y-4">
+        <div class="bg-emerald-50 border border-emerald-100 p-3.5 rounded-xl flex items-center justify-between">
+          <div>
+            <span class="text-xs text-emerald-800 font-semibold block uppercase">Selected Duration</span>
+            <span id="modal-slot-time" class="text-sm font-bold text-emerald-950">08:30 AM - 08:40 AM</span>
+          </div>
+          <span class="text-xs font-black bg-emerald-200 text-emerald-800 px-2.5 py-1 rounded-lg">
+            10 Min
+          </span>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">
+            Class Number (1 - 21) <span class="text-rose-500">*</span>
+          </label>
+          <input
+            type="text"
+            id="modal-class-num"
+            required
+            placeholder="Enter your class number (e.g. 14)"
+            class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          />
+          <p class="text-[11px] text-slate-400 mt-1">Required to match your student identity and avoid duplicate registrations.</p>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">
+            Student Name <span class="text-slate-400">(Optional)</span>
+          </label>
+          <input
+            type="text"
+            id="modal-student-name"
+            placeholder="e.g. Michael Jordan"
+            class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          />
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1">
+            Parent Name <span class="text-slate-400">(Optional)</span>
+          </label>
+          <input
+            type="text"
+            id="modal-parent-name"
+            placeholder="e.g. Mr. Jordan"
+            class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          />
+        </div>
+
+        <div class="bg-amber-50 border border-amber-100 rounded-lg p-3 text-xs text-amber-800 flex gap-2">
+          <svg class="w-4 h-4 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+          <span>Note: Once submitted, parents cannot self-cancel or modify registrations. Please check your schedule carefully!</span>
+        </div>
+
+        <!-- Modal Actions -->
+        <div class="flex gap-3 pt-2">
+          <button
+            type="button"
+            id="btn-close-modal-cancel"
+            class="w-1/2 py-2.5 border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold rounded-xl text-sm transition"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            class="w-1/2 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-sm transition shadow-sm"
+          >
+            Confirm Registration
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-200 bg-white py-8 text-center text-xs text-slate-400">
+    <div class="max-w-7xl mx-auto px-4">
+      <p>© 2026 Online Parents' Day Registration Portal. All rights reserved.</p>
+      <p class="mt-1">Designed for quick, first-come-first-served appointments and accessibility accommodation.</p>
+    </div>
+  </footer>
+
+  <!-- Application Logic (Vanilla JS) -->
+  <script>
+    // Pre-defined schedule configuration
+    const SCHEDULE_CONFIG = [
+      { type: 'slot', start: '08:30', end: '08:40', id: 1 },
+      { type: 'slot', start: '08:40', end: '08:50', id: 2 },
+      { type: 'slot', start: '08:50', end: '09:00', id: 3 },
+      { type: 'slot', start: '09:00', end: '09:10', id: 4 },
+      { type: 'slot', start: '09:10', end: '09:20', id: 5 },
+      { type: 'slot', start: '09:20', end: '09:30', id: 6 },
+      { type: 'break', start: '09:30', end: '09:40', label: '10-Min Break' },
+      { type: 'slot', start: '09:40', end: '09:50', id: 7 },
+      { type: 'slot', start: '09:50', end: '10:00', id: 8 },
+      { type: 'slot', start: '10:00', end: '10:10', id: 9 },
+      { type: 'slot', start: '10:10', end: '10:20', id: 10 },
+      { type: 'slot', start: '10:20', end: '10:30', id: 11 },
+      { type: 'slot', start: '10:30', end: '10:40', id: 12 },
+      { type: 'break', start: '10:40', end: '10:50', label: '10-Min Break' },
+      { type: 'slot', start: '10:50', end: '11:00', id: 13 },
+      { type: 'slot', start: '11:00', end: '11:10', id: 14 },
+      { type: 'slot', start: '11:10', end: '11:20', id: 15 },
+      { type: 'slot', start: '11:20', end: '11:30', id: 16 },
+      { type: 'slot', start: '11:30', end: '11:40', id: 17 },
+      { type: 'slot', start: '11:40', end: '11:50', id: 18 },
+      { type: 'break', start: '11:50', end: '12:00', label: '10-Min Break' },
+      { type: 'slot', start: '12:00', end: '12:10', id: 19 },
+      { type: 'slot', start: '12:10', end: '12:20', id: 20 },
+      { type: 'slot', start: '12:20', end: '12:30', id: 21 },
+    ];
+
+    // Initial mock data
+    const INITIAL_REGISTRATIONS = {
+      2: { classNum: '4', parentName: 'Mr. Chan', studentName: 'Alex Chan' },
+      5: { classNum: '12', parentName: 'Mrs. Wong', studentName: 'Chloe Wong' },
+      9: { classNum: '7', parentName: 'Mr. Li', studentName: 'David Li' },
+      14: { classNum: '19', parentName: 'Mrs. Cheung', studentName: 'Emma Cheung' },
+      18: { classNum: '21', parentName: 'Mr. Ho', studentName: 'Felix Ho' },
+    };
+
+    const INITIAL_REQUESTS = [
+      {
+        id: 'req-1',
+        classNum: '15',
+        studentName: 'Grace Lee',
+        parentName: 'Mrs. Lee',
+        preferredDate: '2026-07-02',
+        preferredTime: '15:30',
+        reason: 'Working a morning shift on the scheduled Parents\' Day.'
+      }
+    ];
+
+    // Application State Variables
+    let registrations = { ...INITIAL_REGISTRATIONS };
+    let requests = [...INITIAL_REQUESTS];
+    let selectedSlot = null;
+    let showRequestForm = false;
+
+    // DOM Elements Cache
+    const elTimetableGrid = document.getElementById('timetable-grid');
+    const elSlotsClaimed = document.getElementById('stat-slots-claimed');
+    const elRequestsCount = document.getElementById('stat-requests');
+    const elBtnExportWord = document.getElementById('btn-export-word');
+    
+    // Request Form Elements
+    const elRequestFormContainer = document.getElementById('request-form-container');
+    const elBtnToggleRequestForm = document.getElementById('btn-toggle-request-form');
+    const elRequestBtnText = document.getElementById('request-btn-text');
+    const elAltRequestForm = document.getElementById('alt-request-form');
+    const elBtnCancelRequest = document.getElementById('btn-cancel-request');
+    
+    // Booking Modal Elements
+    const elBookingModal = document.getElementById('booking-modal');
+    const elModalSlotId = document.getElementById('modal-slot-id');
+    const elModalSlotTime = document.getElementById('modal-slot-time');
+    const elBookingForm = document.getElementById('booking-form');
+    const elBtnCloseModal = document.getElementById('btn-close-modal');
+    const elBtnCloseModalCancel = document.getElementById('btn-close-modal-cancel');
+
+    // Toast Notification helper
+    function triggerNotification(message, type = 'success') {
+      const container = document.getElementById('notification-container');
+      const toast = document.createElement('div');
+      toast.className = `flex items-center p-4 rounded-xl shadow-lg border max-w-md w-full transition-all duration-300 transform translate-y-2 opacity-0 pointer-events-auto ${
+        type === 'error' 
+          ? 'bg-red-50 border-red-200 text-red-800' 
+          : type === 'info'
+          ? 'bg-blue-50 border-blue-200 text-blue-800'
+          : 'bg-emerald-50 border-emerald-200 text-emerald-800'
+      }`;
+
+      // Icon Selector
+      let iconSvg = '';
+      if (type === 'error') {
+        iconSvg = `<svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>`;
+      } else {
+        iconSvg = `<svg class="w-6 h-6 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`;
+      }
+
+      toast.innerHTML = `
+        <div class="mr-3">${iconSvg}</div>
+        <p class="font-medium text-sm">${message}</p>
+        <button class="ml-auto pl-3 text-slate-400 hover:text-slate-600 transition focus:outline-none">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      `;
+
+      container.appendChild(toast);
+
+      // Trigger animation frame to show toast
+      setTimeout(() => {
+        toast.classList.remove('translate-y-2', 'opacity-0');
+      }, 50);
+
+      // Close button action
+      const closeBtn = toast.querySelector('button');
+      closeBtn.onclick = () => {
+        toast.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(() => toast.remove(), 300);
+      };
+
+      // Auto dismiss after 4.5 seconds
+      setTimeout(() => {
+        if (toast.parentNode) {
+          toast.classList.add('opacity-0', 'translate-y-2');
+          setTimeout(() => toast.remove(), 300);
+        }
+      }, 4500);
+    }
+
+    // Check unique class numbers already booked or requested
+    function getBookedClassNumbers() {
+      const booked = new Set();
+      Object.values(registrations).forEach(reg => {
+        booked.add(reg.classNum.toLowerCase().trim());
+      });
+      requests.forEach(req => {
+        booked.add(req.classNum.toLowerCase().trim());
+      });
+      return booked;
+    }
+
+    // Render Function to update everything reactively
+    function render() {
+      // 1. Update Core Stats Counters
+      const claimedCount = Object.keys(registrations).length;
+      elSlotsClaimed.innerHTML = `${claimedCount} <span class="text-sm font-normal text-indigo-200">/ 21</span>`;
+      elRequestsCount.textContent = requests.length;
+
+      // 2. Render Timetable Grid
+      elTimetableGrid.innerHTML = '';
+      SCHEDULE_CONFIG.forEach(item => {
+        if (item.type === 'break') {
+          // Render Break Card
+          const breakEl = document.createElement('div');
+          breakEl.className = "bg-amber-50/70 border border-amber-200/60 rounded-xl p-4 flex flex-col items-center justify-center text-center opacity-80";
+          breakEl.innerHTML = `
+            <span class="text-amber-800 font-bold text-sm tracking-wider uppercase flex items-center gap-1.5">
+              <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              ${item.label}
+            </span>
+            <span class="text-xs text-amber-700/80 mt-1 font-medium">
+              ${item.start} - ${item.end}
+            </span>
+          `;
+          elTimetableGrid.appendChild(breakEl);
+        } else {
+          // Render Slot Card
+          const booking = registrations[item.id];
+          const isOccupied = !!booking;
+          const slotWrapper = document.createElement('div');
+          slotWrapper.className = "relative group";
+
+          if (isOccupied) {
+            slotWrapper.innerHTML = `
+              <div class="bg-rose-50/40 border border-rose-100 rounded-xl p-4 flex flex-col justify-between min-h-[110px] transition duration-200">
+                <div class="flex items-start justify-between">
+                  <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-rose-100 text-rose-800">
+                    Slot #${item.id}
+                  </span>
+                  <span class="text-xs font-bold text-slate-500">
+                    ${item.start} - ${item.end}
+                  </span>
+                </div>
+                <div class="mt-3">
+                  <div class="text-xs text-slate-500">Class Number</div>
+                  <div class="text-base font-bold text-slate-900">No. ${booking.classNum}</div>
+                </div>
+                <div class="absolute top-2 right-2 flex space-x-1 opacity-0 group-hover:opacity-100 transition duration-150">
+                  <span class="px-2 py-1 bg-rose-600 text-white rounded text-[10px] font-bold">
+                    Reserved
+                  </span>
+                </div>
+              </div>
+            `;
+          } else {
+            const btn = document.createElement('button');
+            btn.className = "w-full text-left bg-emerald-50/30 hover:bg-emerald-50 border border-emerald-200/80 hover:border-emerald-400 rounded-xl p-4 flex flex-col justify-between min-h-[110px] transition-all duration-200 hover:shadow-md cursor-pointer focus:outline-none focus:ring-2 focus:ring-emerald-500";
+            btn.innerHTML = `
+              <div class="flex items-start justify-between w-full">
+                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-emerald-100 text-emerald-800">
+                  Slot #${item.id}
+                </span>
+                <span class="text-xs font-bold text-slate-600">
+                  ${item.start} - ${item.end}
+                </span>
+              </div>
+              <div class="mt-3">
+                <div class="text-[11px] text-emerald-700 font-semibold tracking-wide uppercase">Available</div>
+                <div class="text-xs text-slate-500 mt-1">Click to register</div>
+              </div>
+            `;
+            btn.onclick = () => openBookingModal(item);
+            slotWrapper.appendChild(btn);
+          }
+          elTimetableGrid.appendChild(slotWrapper);
+        }
+      });
+    }
+
+    // Modal Interaction Functions
+    function openBookingModal(slot) {
+      selectedSlot = slot;
+      elModalSlotId.textContent = `Timeslot #${slot.id}`;
+      elModalSlotTime.textContent = `${slot.start} AM - ${slot.end} AM`;
+      elBookingModal.classList.remove('hidden');
+      document.getElementById('modal-class-num').focus();
+    }
+
+    function closeBookingModal() {
+      selectedSlot = null;
+      elBookingModal.classList.add('hidden');
+      elBookingForm.reset();
+    }
+
+    // Export Functionality
+    function exportToWord() {
+      const todayString = new Date().toLocaleDateString(undefined, { 
+        weekday: 'long', 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      });
+
+      // Assemble simple Word-compliant HTML table
+      let htmlString = `
+        <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+        <head>
+          <meta charset="utf-8">
+          <title>Parents Day Booking Timetable</title>
+          <style>
+            body { font-family: 'Segoe UI', Arial, sans-serif; padding: 20px; color: #333333; }
+            h2 { color: #1e3a8a; font-size: 20pt; margin-bottom: 5px; }
+            p.subtitle { color: #4b5563; font-size: 11pt; margin-bottom: 20px; }
+            table { border-collapse: collapse; width: 100%; margin-top: 10px; }
+            th { background-color: #3b82f6; color: #ffffff; text-align: left; padding: 10px; font-size: 10.5pt; font-weight: bold; border: 1px solid #cbd5e1; }
+            td { padding: 9px; border: 1px solid #cbd5e1; font-size: 10pt; }
+            .break { background-color: #fef3c7; color: #92400e; font-style: italic; }
+            .occupied { background-color: #fee2e2; font-weight: bold; }
+            .available { color: #059669; }
+          </style>
+        </head>
+        <body>
+          <h2>Parents' Day Timetable</h2>
+          <p class="subtitle">Generated on: ${todayString} &bull; Total Scheduled Slots: 21</p>
+          
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 15%">Slot / Period</th>
+                <th style="width: 20%">Time Duration</th>
+                <th style="width: 20%">Booking Status</th>
+                <th style="width: 25%">Student Name</th>
+                <th style="width: 20%">Parent / Guardian</th>
+              </tr>
+            </thead>
+            <tbody>
+      `;
+
+      // Loop through schedule configuration to output clean table rows
+      SCHEDULE_CONFIG.forEach(item => {
+        if (item.type === 'break') {
+          htmlString += `
+            <tr class="break">
+              <td>-</td>
+              <td>${item.start} - ${item.end}</td>
+              <td colspan="3" style="text-align: center;"><strong>${item.label}</strong></td>
+            </tr>
+          `;
+        } else {
+          const booking = registrations[item.id];
+          if (booking) {
+            htmlString += `
+              <tr class="occupied">
+                <td>Slot #${item.id}</td>
+                <td>${item.start} - ${item.end}</td>
+                <td>Booked (Class No. ${booking.classNum})</td>
+                <td>${booking.studentName || '-'}</td>
+                <td>${booking.parentName || '-'}</td>
+              </tr>
+            `;
+          } else {
+            htmlString += `
+              <tr>
+                <td>Slot #${item.id}</td>
+                <td>${item.start} - ${item.end}</td>
+                <td class="available">Available</td>
+                <td>-</td>
+                <td>-</td>
+              </tr>
+            `;
+          }
+        }
+      });
+
+      // Append Alternative Accommodation requests block at the bottom
+      htmlString += `
+            </tbody>
+          </table>
+          
+          <br/><br/>
+          <h2>Alternative Arrangement Requests</h2>
+          <p class="subtitle">Parents completely unavailable during main 08:30 AM - 12:30 PM schedule:</p>
+      `;
+
+      if (requests.length === 0) {
+        htmlString += `<p style="font-style: italic; color: #6b7280;">No alternative meeting requests registered.</p>`;
+      } else {
+        htmlString += `
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 15%">Class No.</th>
+                <th style="width: 25%">Student Name</th>
+                <th style="width: 20%">Parent Name</th>
+                <th style="width: 20%">Preferred Proposed Slot</th>
+                <th style="width: 20%">Parent Notes</th>
+              </tr>
+            </thead>
+            <tbody>
+        `;
+        requests.forEach(req => {
+          htmlString += `
+            <tr>
+              <td>Class No. ${req.classNum}</td>
+              <td>${req.studentName}</td>
+              <td>${req.parentName}</td>
+              <td>${req.preferredDate} at ${req.preferredTime}</td>
+              <td>${req.reason || '-'}</td>
+            </tr>
+          `;
+        });
+        htmlString += `
+            </tbody>
+          </table>
+        `;
+      }
+
+      htmlString += `
+        </body>
+        </html>
+      `;
+
+      // Save using standard document Blob to easily open in Microsoft Word
+      const blob = new Blob(['\ufeff' + htmlString], {
+        type: 'application/msword;charset=utf-8'
+      });
+      
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.href = url;
+      link.download = `Parents_Day_Timetable_Report.doc`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      
+      triggerNotification('Timetable exported successfully as Word (.doc) format!', 'success');
+    }
+
+    // Event Handlers Setup
+
+    // 1. Submit Registration Form Handler
+    elBookingForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      
+      const classNumInput = document.getElementById('modal-class-num').value.trim();
+      const studentNameInput = document.getElementById('modal-student-name').value.trim();
+      const parentNameInput = document.getElementById('modal-parent-name').value.trim();
+
+      if (!classNumInput) {
+        triggerNotification('Please enter a Class Number.', 'error');
+        return;
+      }
+
+      // Format & Verify duplication
+      const formattedClassNum = classNumInput.toLowerCase();
+      const bookedSet = getBookedClassNumbers();
+
+      if (bookedSet.has(formattedClassNum)) {
+        triggerNotification(`Class Number ${classNumInput} has already registered a slot or requested an alternative date. Each student can only register once.`, 'error');
+        return;
+      }
+
+      // Add to registrations mapping
+      registrations[selectedSlot.id] = {
+        classNum: classNumInput,
+        studentName: studentNameInput || `Student #${classNumInput}`,
+        parentName: parentNameInput || 'Parent/Guardian'
+      };
+
+      triggerNotification(`Successfully registered Timeslot ${selectedSlot.start} - ${selectedSlot.end} for Class No. ${classNumInput}!`, 'success');
+      
+      closeBookingModal();
+      render();
+    });
+
+    // 2. Submit Alternative Arrangement Request Form
+    elAltRequestForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const altClassNum = document.getElementById('alt-class-num').value.trim();
+      const altStudentName = document.getElementById('alt-student-name').value.trim();
+      const altParentName = document.getElementById('alt-parent-name').value.trim();
+      const altDate = document.getElementById('alt-date').value;
+      const altTime = document.getElementById('alt-time').value;
+      const altReason = document.getElementById('alt-reason').value.trim();
+
+      if (!altClassNum || !altDate || !altTime) {
+        triggerNotification('Please fill in all mandatory fields (Class Number, Date, and Time).', 'error');
+        return;
+      }
+
+      const formattedClassNum = altClassNum.toLowerCase();
+      const bookedSet = getBookedClassNumbers();
+
+      if (bookedSet.has(formattedClassNum)) {
+        triggerNotification(`Class Number ${altClassNum} has already registered a slot or submitted a request.`, 'error');
+        return;
+      }
+
+      const newRequest = {
+        id: `req-${Date.now()}`,
+        classNum: altClassNum,
+        studentName: altStudentName || `Student #${altClassNum}`,
+        parentName: altParentName || 'Parent/Guardian',
+        preferredDate: altDate,
+        preferredTime: altTime,
+        reason: altReason || 'No reason provided.'
+      };
+
+      requests.push(newRequest);
+      triggerNotification('Alternative meeting request submitted successfully! The teacher will contact you shortly.', 'success');
+
+      // Reset form & UI visibility
+      elAltRequestForm.reset();
+      showRequestForm = false;
+      elRequestFormContainer.classList.add('hidden');
+      elRequestBtnText.textContent = 'Request Alternative Meeting';
+      render();
+    });
+
+    // 3. Toggle Alternative Booking Request Form Block
+    elBtnToggleRequestForm.onclick = () => {
+      showRequestForm = !showRequestForm;
+      if (showRequestForm) {
+        elRequestFormContainer.classList.remove('hidden');
+        elRequestBtnText.textContent = 'Collapse Form';
+      } else {
+        elRequestFormContainer.classList.add('hidden');
+        elRequestBtnText.textContent = 'Request Alternative Meeting';
+      }
+    };
+
+    // 4. Cancel request form closure
+    elBtnCancelRequest.onclick = () => {
+      showRequestForm = false;
+      elRequestFormContainer.classList.add('hidden');
+      elRequestBtnText.textContent = 'Request Alternative Meeting';
+      elAltRequestForm.reset();
+    };
+
+    // 5. Modal Cancel/Close buttons
+    elBtnCloseModal.onclick = closeBookingModal;
+    elBtnCloseModalCancel.onclick = closeBookingModal;
+
+    // 6. Export Button Bind
+    elBtnExportWord.onclick = exportToWord;
+
+    // Window Onload - Initial Render
+    window.onload = () => {
+      render();
+    };
+  </script>
+</body>
+</html>
